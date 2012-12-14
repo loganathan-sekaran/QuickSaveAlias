@@ -226,7 +226,7 @@ main() {
 	if [ $# -lt 1 ] || [ $1 == '-h' ] || [ $1 == '--help' ];
 	then
 		__show_help
-		return $FALSE;
+		return 1;
 	fi
 
 	if [ $1 == '-install' ];
