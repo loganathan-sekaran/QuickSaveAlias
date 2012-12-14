@@ -218,7 +218,7 @@ chal() {
 }
 
 ## Main ##
-main() {
+__main() {
 
 	__declare_constants
 	
@@ -236,4 +236,4 @@ main() {
 }
 
 ##Invoke Main##
-main $*
+__main $*
