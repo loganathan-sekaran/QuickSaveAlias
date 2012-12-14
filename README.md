@@ -1,6 +1,6 @@
 Quick Save Alias - Version 1.0.0
 ==================================
-Used to quickly add, remove, change aliases in linux shell which will be persisted for future use automatically.
+Used to quickly add, remove, change aliases in Linux shell which will be persisted for future use automatically.
 
 Note: This feature will be applied only for the particular user where it is installed.
 
