@@ -48,11 +48,11 @@ Utility functions:
 Aliases:
 --------
 ````
-  al                                      : Shortcut for 'alias'
-  unal                                    : Shortcut for 'unalias'
-  lsal                                    : Shorcut for 'alias -p' - used to list the aliases
-  sval                                    : Saves all the aliases to '$BASH_ALIAS_FILE_PATH' for future usage.
-  algrep [grep_options] GREP_PATTERN      : used to find the alias based on the grep pattern.
+	al                                      : Shortcut for 'alias'
+	unal                                    : Shortcut for 'unalias'
+	lsal                                    : Shorcut for 'alias -p' - used to list the aliases
+	sval                                    : Saves all the aliases to '$BASH_ALIAS_FILE_PATH' for future usage.
+	algrep [grep_options] GREP_PATTERN      : used to find the alias based on the grep pattern.
 ````
 
 Examples:

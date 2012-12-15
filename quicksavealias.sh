@@ -9,30 +9,30 @@
 #
 
 #constants
-QSA_SCRIPT_VERSION='1.0.0'
+QSA_SCRIPT_VERSION='1.0.1'
 
 #Aliases
 alias sval='alias -p > $BASH_ALIAS_FILE_PATH'
 
 ## Declare other constants
-__declare_constants() {
-  BASH_ALIAS_FILE_PATH=~/.bash-aliases
+qsa_declare_constants() {
+	BASH_ALIAS_FILE_PATH=~/.bash-aliases
 }
 
 
 
-__show_help() {
+qsa_show_help() {
 
 	#Info about Quick Save Alias
-	__about_qsa
+	about_qsa
 	#Installation Guide
-	__installation_guide
+	qsa_installation_guide
 	#Usage Guide
-	__usage_guide
+	qsa_usage_guide
 
 }
 
-__about_qsa() {
+about_qsa() {
 
 cat << EOF
 
@@ -46,7 +46,7 @@ EOF
 
 }
 
-__installation_guide() {
+qsa_installation_guide() {
 
 cat << EOF
 
@@ -80,13 +80,13 @@ EOF
 alh() {
 
 	#Info about Quick Save Alias
-	__about_qsa
+	about_qsa
 	#Usage Guide
-	__usage_guide
+	qsa_usage_guide
 
 }
 
-__usage_guide() {
+qsa_usage_guide() {
 
 cat << EOF
 
@@ -104,10 +104,11 @@ Utility functions:
 
 Aliases:
 --------
-	al 	: Shortcut for 'alias'
-	unal 	: Shortcut for 'unalias'
-	lsal 	: Shorcut for 'alias -p' - used to list the aliases
-	sval 	: Saves all the aliases to '$BASH_ALIAS_FILE_PATH' for future usage.
+	al                                      : Shortcut for 'alias'
+	unal                                    : Shortcut for 'unalias'
+	lsal                                    : Shorcut for 'alias -p' - used to list the aliases
+	sval                                    : Saves all the aliases to '$BASH_ALIAS_FILE_PATH' for future usage.
+	algrep [grep_options] GREP_PATTERN      : used to find the alias based on the grep pattern.
 
 Examples:
 --------
@@ -119,12 +120,13 @@ EOF
 
 }
 
-__install() {
+qsa_install() {
 
 	#declare the aliases
 	alias al=alias
 	alias unal=unalias
 	alias lsal='alias -p'
+	alias algrep='alias -p | grep'
 
 	#Source the existing aliases if available
 	[ -e $BASH_ALIAS_FILE_PATH ] && source $BASH_ALIAS_FILE_PATH
@@ -135,7 +137,7 @@ __install() {
 }
 
 ## Check if the alias existse
-__check_alias_exist() {
+qsa_check_alias_exist() {
 	alias_name=$1
 	
 	alias_declaration=`alias -p | grep " $alias_name="`
@@ -155,14 +157,14 @@ adal() {
 	if [ $# -lt 2 ];
 	then
 		echo -e "adal: Insufficient arguments!\n"
-		__show_help
+		qsa_show_help
 		return 1;
 	fi
 		
 	alias_name=$1
 	alias_val=$2
 
-	if [[ `__check_alias_exist $1` = "TRUE" ]];
+	if [[ `qsa_check_alias_exist $1` = "TRUE" ]];
 	then
 		 echo "Alias $alias_name already exists! Use 'chal' instead." 
 	else 	
@@ -177,14 +179,14 @@ rmal() {
 	if [ $# -lt 1 ];
 	then
 		echo -e "rmal: Insufficient arguments!\n"
-		__show_help
+		qsa_show_help
 		return 1;
 	fi
 		
 
 	alias_name=$1
 
-	if [[ `__check_alias_exist $1` = "TRUE" ]];
+	if [[ `qsa_check_alias_exist $1` = "TRUE" ]];
 	then
 		unalias $alias_name
 		sval 
@@ -200,14 +202,14 @@ chal() {
 	if [ $# -lt 2 ];
 	then
 		echo -e "rmal: Insufficient arguments!\n"
-		__show_help
+		qsa_show_help
 		return 1;
 	fi
 		
 
 	alias_name=$1
 	alias_val=$2
-	if [[ `__check_alias_exist $1` = "TRUE" ]];
+	if [[ `qsa_check_alias_exist $1` = "TRUE" ]];
 	then
 		alias $alias_name="$alias_val"
 		sval 
@@ -218,22 +220,22 @@ chal() {
 }
 
 ## Main ##
-__main() {
+qsa_main() {
 
-	__declare_constants
+	qsa_declare_constants
 	
 	#If there is no argument, just print the usage
 	if [ $# -lt 1 ] || [ $1 == '-h' ] || [ $1 == '--help' ];
 	then
-		__show_help
+		qsa_show_help
 		return 1;
 	fi
 
 	if [ $1 == '-install' ];
 	then
-		__install
+		qsa_install
 	fi
 }
 
 ##Invoke Main##
-__main $*
+qsa_main $*
