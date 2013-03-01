@@ -9,7 +9,7 @@
 #
 
 #constants
-QSA_SCRIPT_VERSION='1.0.1'
+QSA_SCRIPT_VERSION='1.0.2'
 
 #Aliases
 alias sval='alias -p > $BASH_ALIAS_FILE_PATH'
@@ -95,9 +95,11 @@ Usage:
 
 Utility functions:
 ------------------
-	adal 	<alias name> <alias value>	: To add an alias and persist the change.
-	rmal	<alias name> <alias value>	: To remove an alias and persist the change.
-	chal	<alias name> <alias value>	: To change an alias and persist the change.
+	adal 	<alias name> <alias value>		: To add an alias and persist the change.
+	rmal	<alias name> <alias value>		: To remove an alias and persist the change.
+	chal	<alias name> <alias value>		: To change an alias and persist the change.
+	cpal	<old alias name> <new alias name>	: Copy an old alias to a new alias name and persist the change.
+	mval	<old alias name> <new alias name>	: Rename an old alias with a new name and persist the change.
 
 	alh	: To show this usage.
 
@@ -215,6 +217,69 @@ chal() {
 		sval 
 	else
 		echo "Alias $alias_name does not exist!"
+	fi
+
+}
+
+## Copy the alias to a different name and persist the changes.
+cpal() {
+
+	if [ $# -lt 2 ];
+	then
+		echo -e "mval: Insufficient arguments!\n"
+		qsa_show_help
+		return 1;
+	fi
+		
+
+	alias_name=$1
+	new_alias_name=$2
+	if [[ `qsa_check_alias_exist $1` = "TRUE" ]];
+	then
+		if [[ `qsa_check_alias_exist $2` = "TRUE" ]];
+		then
+ 			echo "Alias $new_alias_name already exists!"
+			return 1;
+		else
+			#Getting the old alias value
+			alias_declaration=`alias -p | grep " $alias_name="`
+			alias_val=`echo ${alias_declaration##*=}`
+			#Strip surrounding single quotes
+			alias_val=`echo $alias_val | sed -s "s/^\(\(\"\(.*\)\"\)\|\('\(.*\)'\)\)\$/\\3\\5/g"`
+			#Creating the new alias
+			alias $new_alias_name="$alias_val"
+			#Save changes
+			sval
+
+		fi
+	else
+		echo "Alias $alias_name does not exist!"
+		return 1;
+	fi
+
+}
+
+## Move the alias to a different name and persist the changes.
+mval() {
+
+	if [ $# -lt 2 ];
+	then
+		echo -e "cpal: Insufficient arguments!\n"
+		qsa_show_help
+		return 1;
+	fi
+		
+
+	alias_name=$1
+	new_alias_name=$2
+	#Copy the old alias to a new alias name
+	cpal $1 $2
+	if [ ! $? -eq 1 ];
+	then
+			#Removing the old alias
+			unalias $alias_name
+	else
+		return 1;
 	fi
 
 }
