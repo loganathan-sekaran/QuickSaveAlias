@@ -38,7 +38,7 @@ Usage:
 Utility functions:
 ------------------
 ````
-  adal	<alias name> <alias value>		: To add an alias and persist the change.
+  adal 	<alias name> <alias value>		: To add an alias and persist the change.
   rmal	<alias name> <alias value>		: To remove an alias and persist the change.
   chal	<alias name> <alias value>		: To change an alias and persist the change.
   cpal	<old alias name> <new alias name>	: Copy an old alias to a new alias name and persist the change.

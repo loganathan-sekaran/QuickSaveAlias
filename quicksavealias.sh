@@ -95,7 +95,7 @@ Usage:
 
 Utility functions:
 ------------------
-	adal 	<alias name> <alias value>		: To add an alias and persist the change.
+	adal	<alias name> <alias value>		: To add an alias and persist the change.
 	rmal	<alias name> <alias value>		: To remove an alias and persist the change.
 	chal	<alias name> <alias value>		: To change an alias and persist the change.
 	cpal	<old alias name> <new alias name>	: Copy an old alias to a new alias name and persist the change.
@@ -117,6 +117,8 @@ Examples:
 	adal cdsvn 'cd ~/dev/svn/' 		-- Safely Adds the alias 'cdsvn' without overwriting and existing one and persist the changes.
 	chal e3 '~/dev/eclipse3.6/eclipse'	-- Safely change the existing alias 'e3' to some other value and persist the changes.
 	rmal e3 		 		-- Removes the alias 'e3' and persist the changes.
+	cpal algrep ag 		 		-- Copies the 'algrep' alias to the new alias 'ag' and persist the changes.
+	mval sdiff sdf 		 		-- Renames the 'sdiff' alias to the new alias 'sdf' and persist the changes.
 
 EOF
 
