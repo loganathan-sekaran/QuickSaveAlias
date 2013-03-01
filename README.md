@@ -1,4 +1,4 @@
-Quick Save Alias - Version 1.0.1
+Quick Save Alias - Version 1.0.2
 ==================================
 Used to quickly add, remove, change aliases in Linux shell which will be persisted for future use automatically.
 
