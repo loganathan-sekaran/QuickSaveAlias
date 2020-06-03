@@ -247,7 +247,7 @@ cpal() {
 			alias_declaration=`alias -p | grep " $alias_name="`
 			alias_val=`echo ${alias_declaration##*=}`
 			#Strip surrounding single quotes
-			alias_val=`echo $alias_val | sed -s "s/^\(\(\"\(.*\)\"\)\|\('\(.*\)'\)\)\$/\\3\\5/g"`
+			alias_val=`stripSurroundingSingleQuotes "$alias_val"`
 			#Creating the new alias
 			alias $new_alias_name="$alias_val"
 			#Save changes
@@ -284,6 +284,65 @@ mval() {
 		return 1;
 	fi
 
+}
+
+alval() {
+	if [ $# -lt 1 ];
+	then
+		echo -e "aleval: Insufficient arguments!\n"
+		qsa_show_help
+		return 1;
+	fi
+	
+	alias_name=$1
+	alias_line=$(alias -p | grep "$1"=)
+	if [[ $alias_line = "" ]];
+	then
+		echo "Alias $alias_name does not exist!"
+		return 1;
+	else
+		delim='='
+		alias_val=`splitByFirstOccrOfEqualAndGetVal "$alias_line"`
+		alias_val=`stripSurroundingSingleQuotes "$alias_val"`
+		echo $alias_val
+	fi
+	
+}
+
+aleval() {
+	if [ $# -lt 1 ];
+	then
+		echo -e "aleval: Insufficient arguments!\n"
+		qsa_show_help
+		return 1;
+	fi
+	
+	alias_val=`alval $1`
+	eval "$alias_val"
+
+}
+
+stripSurroundingSingleQuotes() {
+    if [ $# -lt 1 ];
+	then
+		echo -e "stripSurroundingSingleQuotes: Insufficient arguments!\n"
+		qsa_show_help
+		return 1;
+	fi
+
+	echo $1 | sed -s "s/^\(\(\"\(.*\)\"\)\|\('\(.*\)'\)\)\$/\\3\\5/g"
+
+}
+
+splitByFirstOccrOfEqualAndGetVal() {
+	if [ $# -lt 1 ];
+	then
+		echo -e "splitByFirstOccrGetVal: Insufficient arguments!\n"
+		qsa_show_help
+		return 1;
+	fi
+		
+	echo $( cut -d '=' -f 2- <<< "$1" )
 }
 
 ## Main ##
