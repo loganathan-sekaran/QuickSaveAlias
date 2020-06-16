@@ -12,14 +12,14 @@ To install the script for the session, copy the following code to ~/.bashrc or ~
 
 ````
 # Install QuickSaveAlias for the session
-[ -e ~/quicksavealias.sh ] && source quicksavealias.sh -install
+[ -e ~/quicksavealias.sh ] && source ~/quicksavealias.sh -install
 ````
 
 Hint: You can copy the file to home directory and make the file hidden by prefixing by period and then install as below
 
 ````
 # Install QuickSaveAlias for the session
-[ -e ~/.quicksavealias.sh ] && source .quicksavealias.sh -install
+[ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install
 ````
 
 
