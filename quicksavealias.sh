@@ -2,14 +2,14 @@
 #
 # Quick Save Alias
 #
-# Author:Loganathan.S
+# Author:Loganathan.S github.com/loganathan001
 #
 
 ## Global Declarations
 #
 
 #constants
-QSA_SCRIPT_VERSION='1.0.2'
+QSA_SCRIPT_VERSION='1.1.0'
 
 #Aliases
 alias sval='alias -p > $BASH_ALIAS_FILE_PATH'
@@ -17,6 +17,7 @@ alias sval='alias -p > $BASH_ALIAS_FILE_PATH'
 ## Declare other constants
 qsa_declare_constants() {
 	BASH_ALIAS_FILE_PATH=~/.bash-aliases
+	ALIAS_FUNC_PREFIX=alfunc_
 }
 
 
@@ -38,7 +39,7 @@ cat << EOF
 
 Quick Save Alias - Version $QSA_SCRIPT_VERSION
 ==================================
-Used to quickly add, remove, change aliases which will be persisted for future use automatically.
+Used to quickly add, remove, change aliases and functions which will be persisted for future use automatically.
 
 Note: This feature will be applied only for the particular user where it is installed.
 
@@ -100,6 +101,12 @@ Utility functions:
 	chal	<alias name> <alias value>		: To change an alias and persist the change.
 	cpal	<old alias name> <new alias name>	: Copy an old alias to a new alias name and persist the change.
 	mval	<old alias name> <new alias name>	: Rename an old alias with a new name and persist the change.
+	
+	adfn	<function name> <function value>		: To add an function and persist the change. This function can have arguments like $1, $2 
+	rmfn	<function name> <function value>		: To remove an alias and persist the change. This function can have arguments like $1, $2 
+	chfn	<function name> <function value>		: To change an alias and persist the change. This function can have arguments like $1, $2 
+	cpfn	<old function name> <new function name>	: Copy an old alias to a new alias name and persist the change. This function can have arguments like $1, $2 
+	mvfn	<old function name> <new function name>	: Rename an old alias with a new name and persist the change. This function can have arguments like $1, $2 
 
 	alh	: To show this usage.
 
@@ -111,6 +118,9 @@ Aliases:
 	lsal                                    : Shorcut for 'alias -p' - used to list the aliases
 	sval                                    : Saves all the aliases to '$BASH_ALIAS_FILE_PATH' for future usage.
 	algrep [grep_options] GREP_PATTERN      : used to find the alias based on the grep pattern.
+	
+	lsfn                                    : list all functions
+	fngrep [grep_options] GREP_PATTERN      : used to find the functions based on the grep pattern.
 
 Examples:
 --------
@@ -119,7 +129,13 @@ Examples:
 	rmal e3 		 		-- Removes the alias 'e3' and persist the changes.
 	cpal algrep ag 		 		-- Copies the 'algrep' alias to the new alias 'ag' and persist the changes.
 	mval sdiff sdf 		 		-- Renames the 'sdiff' alias to the new alias 'sdf' and persist the changes.
-
+	
+	
+	adfn dex 'docker exec -it $1 /bin/bash' -- Safely adds a functions as alias that will accept an argument, and persists it.
+	chfn dlf 'docker logs -f $1 logger-sidecar' -- Safely changes the function definition in the alias that will accept an argument, and persists it.
+    rmfn dlf                --  Removes the alias function and persists the changes.
+	cpfn dockerrun drn 		 		-- Copies the alias function 'dockerrun' to the new alias 'drn' and persist the changes.
+	mvfn dockerpull dpll 		 		-- Renames the 'dockerpull' alias function to the new alias 'dpll' and persist the changes.
 EOF
 
 }
@@ -131,12 +147,15 @@ qsa_install() {
 	alias unal=unalias
 	alias lsal='alias -p'
 	alias algrep='alias -p | grep'
+	
+	alias lsfn='aleval lsal | grep $ALIAS_FUNC_PREFIX'
+	alias fngrep='alias -p | grep $ALIAS_FUNC_PREFIX | grep'
 
 	#Source the existing aliases if available
 	[ -e $BASH_ALIAS_FILE_PATH ] && source $BASH_ALIAS_FILE_PATH
-
+	
 	#Save the aliases
-	sval	
+	sval
 
 }
 
@@ -284,6 +303,28 @@ mval() {
 		return 1;
 	fi
 
+}
+
+adfn() {
+    funcdef=$(printf "function ${ALIAS_FUNC_PREFIX}$1(){ $2 ; }; ${ALIAS_FUNC_PREFIX}$1")
+	adal $1 "${funcdef}"
+}
+
+chfn() {
+    funcdef=$(printf "function ${ALIAS_FUNC_PREFIX}$1(){ $2 ; }; ${ALIAS_FUNC_PREFIX}$1")
+	chal $1 "${funcdef}"
+}
+
+rmfn() {
+	rmal $1
+}
+
+cpfn() {
+	cpal $1 $2
+}
+
+mvfn() {
+	mval $1 $2
 }
 
 alval() {
