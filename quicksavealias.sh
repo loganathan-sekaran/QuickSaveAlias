@@ -39,9 +39,13 @@ cat << EOF
 
 Quick Save Alias - Version $QSA_SCRIPT_VERSION
 ==================================
-Used to quickly add, remove, change aliases and functions which will be persisted for future use automatically.
+Used to quickly add, remove, change aliases and alias functions which will be persisted for future use automatically.
 
 Note: This feature will be applied only for the particular user where it is installed.
+
+Alias Functions:
+----------------
+Alias functions are functions with single line statements that can accept function arguments, stored as alias.
 
 EOF
 
@@ -102,11 +106,11 @@ Utility functions:
 	cpal	<old alias name> <new alias name>	: Copy an old alias to a new alias name and persist the change.
 	mval	<old alias name> <new alias name>	: Rename an old alias with a new name and persist the change.
 	
-	adfn	<function name> <function value>		: To add an function and persist the change. This function can have arguments like $1, $2 
-	rmfn	<function name> <function value>		: To remove an alias and persist the change. This function can have arguments like $1, $2 
-	chfn	<function name> <function value>		: To change an alias and persist the change. This function can have arguments like $1, $2 
-	cpfn	<old function name> <new function name>	: Copy an old alias to a new alias name and persist the change. This function can have arguments like $1, $2 
-	mvfn	<old function name> <new function name>	: Rename an old alias with a new name and persist the change. This function can have arguments like $1, $2 
+	adfn	<function name> <function value>		: To add an alias function and persist the change. This function can have arguments like \$1, \$2.
+	rmfn	<function name> <function value>		: To remove an alias function and persist the change. This function can have arguments like \$1, \$2.
+	chfn	<function name> <function value>		: To change an alias function and persist the change. This function can have arguments like \$1, \$2.
+	cpfn	<old function name> <new function name>		: Copy an old alias function to a new alias function name and persist the change. This function can have arguments like \$1, \$2.
+	mvfn	<old function name> <new function name>		: Rename an old alias function with a new name and persist the change. This function can have arguments like \$1, \$2.
 
 	alh	: To show this usage.
 
@@ -119,8 +123,8 @@ Aliases:
 	sval                                    : Saves all the aliases to '$BASH_ALIAS_FILE_PATH' for future usage.
 	algrep [grep_options] GREP_PATTERN      : used to find the alias based on the grep pattern.
 	
-	lsfn                                    : list all functions
-	fngrep [grep_options] GREP_PATTERN      : used to find the functions based on the grep pattern.
+	lsfn                                    : list all alias functions
+	fngrep [grep_options] GREP_PATTERN      : used to find the alias functions based on the grep pattern.
 
 Examples:
 --------
@@ -131,11 +135,11 @@ Examples:
 	mval sdiff sdf 		 		-- Renames the 'sdiff' alias to the new alias 'sdf' and persist the changes.
 	
 	
-	adfn dex 'docker exec -it $1 /bin/bash' -- Safely adds a functions as alias that will accept an argument, and persists it.
-	chfn dlf 'docker logs -f $1 logger-sidecar' -- Safely changes the function definition in the alias that will accept an argument, and persists it.
-    rmfn dlf                --  Removes the alias function and persists the changes.
-	cpfn dockerrun drn 		 		-- Copies the alias function 'dockerrun' to the new alias 'drn' and persist the changes.
-	mvfn dockerpull dpll 		 		-- Renames the 'dockerpull' alias function to the new alias 'dpll' and persist the changes.
+	adfn dex 'docker exec -it $1 /bin/bash'		-- Safely adds a functions as alias that will accept an argument, and persists it.
+	chfn dlf 'docker logs -f $1 logger-sidecar'	-- Safely changes the function definition in the alias that will accept an argument, and persists it.
+	rmfn dlf					--  Removes the alias function and persists the changes.
+	cpfn dockerrun drn				-- Copies the alias function 'dockerrun' to the new alias 'drn' and persist the changes.
+	mvfn dockerpull dpll				-- Renames the 'dockerpull' alias function to the new alias 'dpll' and persist the changes.
 EOF
 
 }
