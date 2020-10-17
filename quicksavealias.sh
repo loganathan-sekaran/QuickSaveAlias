@@ -135,8 +135,8 @@ Examples:
 	mval sdiff sdf 		 		-- Renames the 'sdiff' alias to the new alias 'sdf' and persist the changes.
 	
 	
-	adfn dex 'docker exec -it $1 /bin/bash'		-- Safely adds a functions as alias that will accept an argument, and persists it.
-	chfn dlf 'docker logs -f $1 logger-sidecar'	-- Safely changes the function definition in the alias that will accept an argument, and persists it.
+	adfn dex 'docker exec -it \$1 /bin/bash'		-- Safely adds a functions as alias that will accept an argument, and persists it.
+	chfn dlf 'docker logs -f \$1 logger-sidecar'	-- Safely changes the function definition in the alias that will accept an argument, and persists it.
 	rmfn dlf					--  Removes the alias function and persists the changes.
 	cpfn dockerrun drn				-- Copies the alias function 'dockerrun' to the new alias 'drn' and persist the changes.
 	mvfn dockerpull dpll				-- Renames the 'dockerpull' alias function to the new alias 'dpll' and persist the changes.
