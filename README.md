@@ -7,7 +7,7 @@ Note: This feature will be applied only for the particular user where it is inst
 # Alias Functions
 Alias functions are functions with single line statements that can accept function arguments, stored as alias.
 
-Installing:
+Installatioin:
 -----------
 
 To install the script for the session, copy the following code to ~/.bashrc or ~/.bash-profile :
@@ -24,8 +24,30 @@ Hint: You can copy the file to home directory and make the file hidden by prefix
 [ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install
 ````
 
+Quick-Installation:
+-------------------
+* To quickly install QuickSaveAlias:
+````
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash
+````
 
-Un-installing:
+* To quickly install QuickSaveAlias with basic aliases backup (my_aliases_backup/.bash-aliases):
+````
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash -s basic
+````
+
+* To quickly install QuickSaveAlias with some other aliases backup (my_aliases_backup/.bash-aliases-<some-other-backup>):
+````
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash -s <some-other-backup>
+````
+For Example:
+
+````
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash -s devops
+````
+
+
+Un-installation:
 -------------
 Just remove the entry added for installing the feature in ~/.bashrc or ~/.bash-profile .
 
