@@ -8,10 +8,11 @@ wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quick
 # Download any existing aliases. If $1 is not provided it will not download the existing alias. 
 # If 'basic' is provided, it will download /my_aliases_bkup/.bash-aliases
 # If 'somethingelse' is provided it will download /my_aliases_bkup/.bash-aliases-somethingelse
-echo "Downloading existing alias backups.."
 if [[ "$1" == "basic" ]]; then
+	echo "Downloading existing alias backups: loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases"
 	wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases -O .bash-aliases
-else if [ ! -z "$1" -a "$1" != " " ]; then
+elif [ ! -z "$1" -a "$1" != " " ]; then
+	echo "Downloading existing alias backups: loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases-$1"
 	wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases-$1 -O .bash-aliases
 fi 
 
@@ -26,3 +27,5 @@ Installation of QuickSaveAlias completed.
 To remove QuickSaveAlias if not needed, remove the QuickSaveAlias install command from ~/.bashrc
 Please refer to the link for any details: https://github.com/loganathan001/QuickSaveAlias
 EOF
+
+source ~/.bashrc
