@@ -21,7 +21,8 @@ cat <<EOT >> .bashrc
 [ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install
 EOT
 
-echo "Installation of QuickSaveAlias completed. 
+cat << EOF
+Installation of QuickSaveAlias completed. 
 To remove QuickSaveAlias if not needed, remove the QuickSaveAlias install command from ~/.bashrc
 Please refer to the link for any details: https://github.com/loganathan001/QuickSaveAlias
-"
+EOF
