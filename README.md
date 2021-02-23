@@ -10,7 +10,9 @@ Alias functions are functions with single line statements that can accept functi
 Installatioin:
 -----------
 
-To install the script for the session, copy the following code to ~/.bashrc or ~/.bash-profile.
+To install the script for the session, 
+* Download the file [quicksavealias.sh](https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quicksavealias.sh) file to your home folder.
+* Copy the following code to ~/.bashrc or ~/.bash-profile.
 
 ````
 # Install QuickSaveAlias for the session
@@ -18,13 +20,14 @@ To install the script for the session, copy the following code to ~/.bashrc or ~
 ````
 
 Hint: You can copy the file to home directory and make the file hidden by prefixing by period and then install as below
+Note: This can be placed elsewhere also if required. Please alter the above installation command appropriately.
 
 ````
 # Install QuickSaveAlias for the session
 [ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install
 ````
 
-And then source that file (~/.bashrc or ~/.bash-profile) or re-login to use QuickSaveAlias.
+* And then source that file (~/.bashrc or ~/.bash-profile) or re-login to use QuickSaveAlias.
 
 Quick-Installation:
 -------------------
