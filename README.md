@@ -10,7 +10,7 @@ Alias functions are functions with single line statements that can accept functi
 Installatioin:
 -----------
 
-To install the script for the session, copy the following code to ~/.bashrc or ~/.bash-profile :
+To install the script for the session, copy the following code to ~/.bashrc or ~/.bash-profile.
 
 ````
 # Install QuickSaveAlias for the session
@@ -24,26 +24,28 @@ Hint: You can copy the file to home directory and make the file hidden by prefix
 [ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install
 ````
 
+And then source that file (~/.bashrc or ~/.bash-profile) or re-login to use QuickSaveAlias.
+
 Quick-Installation:
 -------------------
 * To quickly install QuickSaveAlias:
 ````
-curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash && source ~/.bashrc
 ````
 
 * To quickly install QuickSaveAlias with basic aliases backup (my_aliases_backup/.bash-aliases):
 ````
-curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash -s basic
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash -s basic && source ~/.bashrc
 ````
 
-* To quickly install QuickSaveAlias with some other aliases backup (my_aliases_backup/.bash-aliases-<some-other-backup>):
+* To quickly install QuickSaveAlias with some other aliases backup (my_aliases_backup/.bash-aliases-&lt;some-other-backup&gt;):
 ````
-curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash -s <some-other-backup>
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash -s <some-other-backup> && source ~/.bashrc
 ````
 For Example:
 
 ````
-curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash -s devops
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash -s devops && source ~/.bashrc
 ````
 
 
