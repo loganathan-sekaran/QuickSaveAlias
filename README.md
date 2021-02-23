@@ -1,11 +1,21 @@
 Quick Save Alias - Version 1.1.0
 ==================================
-Used to quickly add, remove, change aliases and alias functions which will be persisted for future use automatically.
+Used to quickly add, remove, change **aliases** and **alias functions** which will be persisted for future use automatically.
 
 Note: This feature will be applied only for the particular user where it is installed.
 
 # Alias Functions
 Alias functions are functions with single line statements that can accept function arguments, stored as alias.
+For example,
+
+````
+dex='docker exec -it $1 /bin/bash'
+````
+
+This can be invoked as below:
+````
+dex my-docker-container:latest
+````
 
 Installatioin:
 -----------
