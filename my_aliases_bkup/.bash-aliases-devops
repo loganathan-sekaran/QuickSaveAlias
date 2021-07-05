@@ -58,3 +58,5 @@ alias wida='watch -n 1 "kubectl --kubeconfig $HOME/.kube/mzcluster.config get po
 alias widr='watch -n 1 "kubectl --kubeconfig $HOME/.kube/mzcluster.config get pods | grep idrepo-"'
 alias wkp='watch -n 1 "kubectl --kubeconfig $HOME/.kube/mzcluster.config get pods | grep"'
 alias wkp2='watch -n 1 "kubectl --kubeconfig $HOME/.kube/dmzcluster.config get pods | grep"'
+alias ked=' kc1 edit deploy'
+alias ked2=' kc2 edit deploy'
