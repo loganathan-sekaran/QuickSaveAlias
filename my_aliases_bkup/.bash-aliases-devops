@@ -60,4 +60,4 @@ alias wkp='watch -n 1 "kubectl --kubeconfig $HOME/.kube/mzcluster.config get pod
 alias wkp2='watch -n 1 "kubectl --kubeconfig $HOME/.kube/dmzcluster.config get pods | grep"'
 alias ked=' kc1 edit deploy'
 alias ked2=' kc2 edit deploy'
-alias genv='grep -rw group_vars/all.yml -e "sandbox_domain_name:"'
+alias genv='grep -rnw /home/mosipuser/mosip-infra/deployment/sandbox-v2/group_vars/all.yml -e "sandbox_domain_name:"'
