@@ -58,7 +58,7 @@ curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/in
 For Example:
 
 ````
-curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash -s devops && source ~/.bashrc
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash -s dev && source ~/.bashrc
 ````
 
 
