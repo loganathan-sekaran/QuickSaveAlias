@@ -12,7 +12,7 @@
 QSA_SCRIPT_VERSION='1.1.0'
 
 #Aliases
-alias sval='alias -p > $ZSH_ALIAS_FILE_PATH'
+alias sval='alias > $ZSH_ALIAS_FILE_PATH'
 
 ## Declare other constants
 qsa_declare_constants() {
@@ -108,12 +108,14 @@ Aliases:
 --------
 	al                                      : Shortcut for 'alias'
 	unal                                    : Shortcut for 'unalias'
-	lsal                                    : Shorcut for 'alias -p' - used to list the aliases
+	lsal                                    : Shorcut for 'alias' - used to list the aliases
 	sval                                    : Saves all the aliases to '$ZSH_ALIAS_FILE_PATH' for future usage.
 	algrep [grep_options] GREP_PATTERN      : used to find the alias based on the grep pattern.
 	
 	lsfn                                    : list all alias functions
 	fngrep [grep_options] GREP_PATTERN      : used to find the alias functions based on the grep pattern.
+	
+# Note: In Zsh, aliases are listed directly with 'alias' command (without -p flag like in Bash)
 
 Examples:
 --------
@@ -136,12 +138,12 @@ qsa_install() {
 	#declare the aliases
 	alias al=alias
 	alias unal=unalias
-	alias lsal='alias -p'
-	alias algrep='alias -p | grep'
+	alias lsal='alias'
+	alias algrep='alias | grep'
 	
 	# In Zsh, we use 'alval' with 'lsal' to handle alias functions
 	alias lsfn='aleval lsal | grep $ALIAS_FUNC_PREFIX'
-	alias fngrep='alias -p | grep $ALIAS_FUNC_PREFIX | grep'
+	alias fngrep='alias | grep $ALIAS_FUNC_PREFIX | grep'
 
 	#Source the existing aliases if available
 	[ -e $ZSH_ALIAS_FILE_PATH ] && source $ZSH_ALIAS_FILE_PATH
@@ -154,7 +156,7 @@ qsa_install() {
 qsa_check_alias_exist() {
 	alias_name=$1
 	
-	alias_declaration=$(alias -p | grep " $alias_name=")
+	alias_declaration=$(alias | grep " $alias_name=")
 
 	if [[ "x$alias_declaration" = "x" ]]; then
 		echo "FALSE"
@@ -234,7 +236,7 @@ cpal() {
 			return 1
 		else
 			#Getting the old alias value
-			alias_declaration=$(alias -p | grep " $alias_name=")
+			alias_declaration=$(alias | grep " $alias_name=")
 			alias_val=$(echo ${alias_declaration##*=})
 			#Strip surrounding single quotes
 			alias_val=$(stripSurroundingSingleQuotes "$alias_val")
@@ -272,12 +274,14 @@ mval() {
 }
 
 adfn() {
-    funcdef=$(printf "function ${ALIAS_FUNC_PREFIX}$1(){ $2 ; }; ${ALIAS_FUNC_PREFIX}$1")
+    # Zsh-compatible function definition
+    funcdef=$(printf "${ALIAS_FUNC_PREFIX}$1() { $2 ; }; ${ALIAS_FUNC_PREFIX}$1")
 	adal $1 "${funcdef}"
 }
 
 chfn() {
-    funcdef=$(printf "function ${ALIAS_FUNC_PREFIX}$1(){ $2 ; }; ${ALIAS_FUNC_PREFIX}$1")
+    # Zsh-compatible function definition
+    funcdef=$(printf "${ALIAS_FUNC_PREFIX}$1() { $2 ; }; ${ALIAS_FUNC_PREFIX}$1")
 	chal $1 "${funcdef}"
 }
 
@@ -301,7 +305,7 @@ alval() {
 	fi
 	
 	alias_name=$1
-	alias_line=$(alias -p | grep "$1"=)
+	alias_line=$(alias | grep "$1"=)
 	if [[ $alias_line = "" ]]; then
 		echo "Alias $alias_name does not exist!"
 		return 1
@@ -330,7 +334,8 @@ stripSurroundingSingleQuotes() {
 		return 1
 	fi
 
-	echo $1 | sed -E "s/^('(.*)'|(\"(.*)\"))$/\2\4/g"
+	# More robust for Zsh quote handling
+	echo $1 | sed -E "s/^[\"'](.*)[\"\']$/\1/g"
 }
 
 splitByFirstOccrOfEqualAndGetVal() {
