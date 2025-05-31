@@ -64,9 +64,12 @@ Hint: You can copy the file to home directory and make the file hidden by prefix
 
 Un-installing:
 -------------
-Just remove the entry added for installing the feature in ~/.zshrc.
+Just remove the entries added for installing the feature in ~/.zshrc:
+* The line with "quicksavealias.sh -install"
+* The line with "source ~/.zsh-aliases"
 
 Note: 
+* The installer automatically adds the necessary line to load your saved aliases from ~/.zsh-aliases
 * To reuse the aliases created, across multiple installations, multiple users and multiple machines, 
 have a backup of the file ~/.zsh-aliases and copy it to the home directory before installing the script as above. 
 * To remove all the new aliases created just delete ~/.zsh-aliases file
@@ -150,6 +153,13 @@ qsa_install() {
 	
 	#Save the aliases
 	sval
+	
+	# Ensure aliases will be loaded at startup
+	if ! grep -q "source ~/.zsh-aliases" ~/.zshrc; then
+		echo -e "\n# Load saved aliases" >> ~/.zshrc
+		echo "[ -f ~/.zsh-aliases ] && source ~/.zsh-aliases" >> ~/.zshrc
+		echo "Added automatic loading of aliases to ~/.zshrc"
+	fi
 }
 
 ## Check if the alias exists

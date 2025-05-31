@@ -24,6 +24,13 @@ else
     echo "[ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install" >> ~/.zshrc
 fi
 
+# Add the .zsh-aliases loading if it's not already there
+if ! grep -q "source ~/.zsh-aliases" ~/.zshrc; then
+    echo -e "\n# Load saved aliases" >> ~/.zshrc
+    echo "[ -f ~/.zsh-aliases ] && source ~/.zsh-aliases" >> ~/.zshrc
+    echo "Added .zsh-aliases loading to ~/.zshrc"
+fi
+
 cat << EOF
 Installation of QuickSaveAlias completed for macOS/Zsh.
 To remove QuickSaveAlias if not needed, remove the QuickSaveAlias install command from ~/.zshrc
