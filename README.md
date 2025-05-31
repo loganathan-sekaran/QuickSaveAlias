@@ -125,3 +125,37 @@ Examples:
   cpfn dockerrun drn                              -- Copies the alias function 'dockerrun' to the new alias 'drn' and persist the changes.
   mvfn dockerpull dpll                            -- Renames the 'dockerpull' alias function to the new alias 'dpll' and persist the changes.
 ````
+
+Zsh Installation (macOS):
+------------------------
+* Download the file [quicksavealias.sh](https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quicksavealias.sh) to your home folder.
+* Add the following to your ~/.zshrc:
+
+```zsh
+# Install QuickSaveAlias for the session (Zsh)
+[ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install
+```
+
+* Then run: `source ~/.zshrc` or restart your terminal.
+
+Quick-Installation for macOS/Zsh:
+---------------------------
+* To quickly install QuickSaveAlias for macOS/Zsh:
+````
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh && source ~/.zshrc
+````
+
+* To quickly install QuickSaveAlias with basic aliases backup (my_aliases_backup/.bash-aliases):
+````
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh -s basic && source ~/.zshrc
+````
+
+* To quickly install QuickSaveAlias with some other aliases backup (my_aliases_backup/.bash-aliases-<some-other-backup>):
+````
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh -s <some-other-backup> && source ~/.zshrc
+````
+For Example:
+
+````
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh -s dev && source ~/.zshrc
+````
