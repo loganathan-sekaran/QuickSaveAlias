@@ -2,8 +2,8 @@
 # This script is to quicken the installation of QuickSaveAlias in macOS with Zsh
 cd ~/
 echo "Installation of QuickSaveAlias for macOS/Zsh Started.."
-echo "Downloading QuickSaveAlias.."
-curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quicksavealias.sh -o .quicksavealias.sh
+echo "Downloading QuickSaveAlias for macOS/Zsh.."
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quicksavealias_mac.sh -o .quicksavealias.sh
 
 # Download any existing aliases. If $1 is not provided it will not download the existing alias. 
 # If 'basic' is provided, it will download /my_aliases_bkup/.bash-aliases

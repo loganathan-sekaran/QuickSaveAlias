@@ -128,7 +128,7 @@ Examples:
 
 Zsh Installation (macOS):
 ------------------------
-* Download the file [quicksavealias.sh](https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quicksavealias.sh) to your home folder.
+* Download the file [quicksavealias_mac.sh](https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quicksavealias_mac.sh) to your home folder as `.quicksavealias.sh`.
 * Add the following to your ~/.zshrc:
 
 ```zsh
