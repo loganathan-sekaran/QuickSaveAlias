@@ -129,6 +129,7 @@ Examples:
 Zsh Installation (macOS):
 ------------------------
 * Download the file [quicksavealias_mac.sh](https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quicksavealias_mac.sh) to your home folder as `.quicksavealias.sh`.
+* Download the helper file [zsh_special_aliases.sh](https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/zsh_special_aliases.sh) to your home folder as `.zsh_special_aliases.sh`.
 * Add the following to your ~/.zshrc:
 
 ```zsh
@@ -138,24 +139,23 @@ Zsh Installation (macOS):
 
 * Then run: `source ~/.zshrc` or restart your terminal.
 
-Quick-Installation for macOS/Zsh:
----------------------------
-* To quickly install QuickSaveAlias for macOS/Zsh:
-````
-curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh && source ~/.zshrc
-````
+**Special Character Aliases in Zsh**
 
-* To quickly install QuickSaveAlias with basic aliases backup (my_aliases_backup/.bash-aliases):
-````
-curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh -s basic && source ~/.zshrc
-````
+Zsh handles special characters in alias names differently than Bash. Aliases with special characters like `-`, `.`, or starting with numbers can cause parsing errors when loaded from a file. QuickSaveAlias uses a two-part approach to handle this:
 
-* To quickly install QuickSaveAlias with some other aliases backup (my_aliases_backup/.bash-aliases-<some-other-backup>):
-````
-curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh -s <some-other-backup> && source ~/.zshrc
-````
-For Example:
+1. Regular aliases are saved to `~/.zsh-aliases`
+2. Special character aliases (like `-=cd -`, `...=../..`, etc.) are managed through `~/.zsh_special_aliases.sh`
 
-````
-curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh -s dev && source ~/.zshrc
-````
+When you use `adal`, `chal`, etc. with special character aliases, they're automatically detected and handled appropriately. Common special character aliases are included by default:
+
+```zsh
+alias -='cd -'        # Go to previous directory
+alias ...='../..'     # Go up two directories
+alias ....='../../..' # Go up three directories
+alias 1='cd -1'       # Go to the 1st directory in the directory stack
+```
+
+If you see any issues with aliases containing special characters:
+
+1. Run `fixal` to fix the format of your alias file
+2. Use the `syncSpecialAliases` function to synchronize your special character aliases

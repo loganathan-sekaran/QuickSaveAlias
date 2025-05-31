@@ -12,14 +12,8 @@
 QSA_SCRIPT_VERSION='1.1.0'
 
 #Aliases
-# Simple version for Zsh that just writes aliases directly to a file
-alias sval='
-  # Save all current aliases to the file
-  alias > $ZSH_ALIAS_FILE_PATH
-  echo "Aliases saved to $ZSH_ALIAS_FILE_PATH"
-  # Synchronize special character aliases to the helper script
-  syncSpecialAliases
-'
+# Modified to properly format aliases for Zsh with special character handling
+alias sval='alias > $ZSH_ALIAS_FILE_PATH.tmp; cat $ZSH_ALIAS_FILE_PATH.tmp | while read line; do if [[ $line == *"="* ]]; then name=${line%%=*}; value=${line#*=}; echo "alias ${name}=${value}"; else echo "$line"; fi; done > $ZSH_ALIAS_FILE_PATH; rm $ZSH_ALIAS_FILE_PATH.tmp'
 
 ## Declare other constants
 qsa_declare_constants() {
@@ -95,59 +89,39 @@ alh() {
 fixal() {
 	if [ -f $ZSH_ALIAS_FILE_PATH ]; then
 		echo "Fixing the format of aliases in $ZSH_ALIAS_FILE_PATH..."
-		
-		# Create backup before fixing
-		cp $ZSH_ALIAS_FILE_PATH $ZSH_ALIAS_FILE_PATH.bak
-		echo "Created backup at $ZSH_ALIAS_FILE_PATH.bak"
-		
 		# Create a temporary file
 		local tmp_file=$(mktemp)
-		echo "# filepath: $ZSH_ALIAS_FILE_PATH (fixed format)" > $tmp_file
 		
 		# Process the file line by line
-		cat $ZSH_ALIAS_FILE_PATH | while IFS= read -r line; do
+		cat $ZSH_ALIAS_FILE_PATH | while read line; do
 			# Skip empty lines
 			if [[ -z "$line" ]]; then
 				continue
 			fi
 			
-			# Handle comments
-			if [[ "$line" == \#* ]]; then
+			# Skip lines that already start with "alias "
+			if [[ "$line" == alias* ]]; then
 				echo "$line" >> $tmp_file
 				continue
-			fi
+			}
 			
-			# Skip lines that already have proper "alias " prefix
-			if [[ "$line" == alias* && "$line" != *"="* ]]; then
-				echo "$line" >> $tmp_file
-				continue
-			fi
-			
-			# Process alias definitions
+			# Add "alias" prefix to each line and properly handle special characters
 			if [[ "$line" == *"="* ]]; then
-				# If already has alias prefix, extract just the name and value
-				if [[ "$line" == alias* ]]; then
-					# Remove the 'alias ' prefix
-					line=${line#alias }
-					# Remove surrounding quotes if present
-					line=$(echo "$line" | sed -E "s/^['\"](.*)['\"]$/\\1/")
-				fi
+				# Extract the alias name and value
+				alias_name=$(echo "$line" | cut -d'=' -f1)
+				alias_value=$(echo "$line" | cut -d'=' -f2-)
 				
-				# Extract the alias name (everything before first =)
-				alias_name=$(echo "$line" | sed -E "s/^([^=]+)=.*/\\1/")
-				
-				# Check if it needs special handling
-				if [[ "$alias_name" == -* || "$alias_name" == .* || "$alias_name" == [0-9]* || 
-					  "$alias_name" == *-* || "$alias_name" == *+* || "$alias_name" == *\** || 
-					  "$alias_name" == *\!* || "$alias_name" == *\&* ]]; then
-					# Quote the entire alias for special characters
-					echo "alias '$line'" >> $tmp_file
+				# Special handling for aliases containing special characters
+				if [[ "$alias_name" == *\'* || "$alias_name" == *\"* || "$alias_name" == *\!* || "$alias_name" == *\[* || "$alias_name" == *\]* || 
+				      "$alias_name" == *\-* || "$alias_name" == *\.* || "$alias_name" == *\>* || "$alias_name" == *\<* || 
+				      "$alias_name" == *\=* || "$alias_name" == *\+* || "$alias_name" == *\^* || "$alias_name" == *\&* ]]; then
+					# Need quotes for special characters, and need to single-quote the entire definition for Zsh
+					echo "alias '$alias_name=$alias_value'" >> $tmp_file
 				else
-					# Regular alias
-					echo "alias $line" >> $tmp_file
+					echo "alias $alias_name=$alias_value" >> $tmp_file
 				fi
 			else
-				# Just keep other lines as they are
+				# Just keep comments and other lines as they are
 				echo "$line" >> $tmp_file
 			fi
 		done
@@ -214,79 +188,70 @@ EOF
 }
 
 qsa_install() {
-	# Define basic aliases
+	#declare the aliases
 	alias al=alias
 	alias unal=unalias
 	alias lsal='alias'
 	alias algrep='alias | grep'
 	
-	# Function-related aliases
+	# In Zsh, we use 'alval' with 'lsal' to handle alias functions
 	alias lsfn='aleval lsal | grep $ALIAS_FUNC_PREFIX'
 	alias fngrep='alias | grep $ALIAS_FUNC_PREFIX | grep'
-	
-	# Source existing aliases if available
+
+	# Check if existing aliases file is in the right format
+	if [ -e $ZSH_ALIAS_FILE_PATH ]; then
+		# Check if the file starts with "alias" commands
+		if ! grep -q "^alias" $ZSH_ALIAS_FILE_PATH; then
+			echo "Detected aliases file in incorrect format. Fixing it..."
+			# Create a temporary file
+			local tmp_file=$(mktemp)
+			
+			# Process the file line by line to add "alias" prefix
+			cat $ZSH_ALIAS_FILE_PATH | while read line; do
+				# Skip empty lines
+				if [[ -z "$line" ]]; then
+					continue
+				fi
+				
+				# Add "alias" prefix to each line and properly handle special characters
+				if [[ "$line" == *"="* ]]; then
+					# Extract the alias name and value
+					alias_name=$(echo "$line" | cut -d'=' -f1)
+					alias_value=$(echo "$line" | cut -d'=' -f2-)
+					
+					# Special handling for aliases containing special characters
+					if [[ "$alias_name" == *\'* || "$alias_name" == *\"* || "$alias_name" == *\!* || "$alias_name" == *\[* || "$alias_name" == *\]* || 
+					      "$alias_name" == *\-* || "$alias_name" == *\.* || "$alias_name" == *\>* || "$alias_name" == *\<* || 
+					      "$alias_name" == *\=* || "$alias_name" == *\+* || "$alias_name" == *\^* || "$alias_name" == *\&* ]]; then
+						# Need quotes for special characters, and need to single-quote the entire definition for Zsh
+						echo "alias '$alias_name=$alias_value'" >> $tmp_file
+					else
+						echo "alias $alias_name=$alias_value" >> $tmp_file
+					fi
+				else
+					# Just keep comments and other lines as they are
+					echo "$line" >> $tmp_file
+				fi
+			done
+			
+			# Replace the original file with the fixed one
+			mv $tmp_file $ZSH_ALIAS_FILE_PATH
+			echo "Fixed existing aliases file format"
+		fi
+	fi
+
+	#Source the existing aliases if available
 	[ -e $ZSH_ALIAS_FILE_PATH ] && source $ZSH_ALIAS_FILE_PATH
 	
-	# Copy the special aliases helper script to home directory if it exists in the same location
-	helper_path="$(dirname "$0")/zsh_special_aliases.sh"
-	if [ -f "$helper_path" ]; then
-		cp "$helper_path" ~/.zsh_special_aliases.sh
-		chmod +x ~/.zsh_special_aliases.sh
-	elif [ -f "/Users/loganathan.sekaran/Library/CloudStorage/OneDrive-5SecCyberpwnTechnologiesPvt.Ltd/git/QuickSaveAlias/zsh_special_aliases.sh" ]; then
-		cp "/Users/loganathan.sekaran/Library/CloudStorage/OneDrive-5SecCyberpwnTechnologiesPvt.Ltd/git/QuickSaveAlias/zsh_special_aliases.sh" ~/.zsh_special_aliases.sh
-		chmod +x ~/.zsh_special_aliases.sh
-	else
-		# Create the helper script if it doesn't exist
-		cat > ~/.zsh_special_aliases.sh << 'EOL'
-#!/bin/zsh
-# Helper script for QuickSaveAlias to manage special character aliases in Zsh
-# This file is automatically updated by the QuickSaveAlias system when you use sval
-
-# Common default special character aliases for Zsh users
-# These will be kept even if not in your current configuration
-
-# Special character aliases begin
-alias -='cd -'
-alias ...='../..'
-alias ....='../../..'
-alias .....='../../../..'
-alias ......='../../../../..'
-alias 1='cd -1'
-alias 2='cd -2'
-alias 3='cd -3'
-alias 4='cd -4'
-alias 5='cd -5'
-alias 6='cd -6'
-alias 7='cd -7'
-alias 8='cd -8'
-alias 9='cd -9'
-alias _='sudo '
-# Special character aliases end
-
-# Load the rest of the aliases from the main file
-if [ -f ~/.zsh-aliases ]; then
-  source ~/.zsh-aliases
-fi
-EOL
-		chmod +x ~/.zsh_special_aliases.sh
-	fi
-	
-	# Ensure aliases will be loaded at startup using the special helper
-	if grep -q "source ~/.zsh-aliases" ~/.zshrc; then
-		# Replace direct sourcing with our helper script
-		sed -i '' '/source ~\/.zsh-aliases/d' ~/.zshrc
-	fi
-	
-	if ! grep -q "source ~/.zsh_special_aliases.sh" ~/.zshrc; then
-		echo -e "\n# Load all aliases including special character aliases" >> ~/.zshrc
-		echo "[ -f ~/.zsh_special_aliases.sh ] && source ~/.zsh_special_aliases.sh" >> ~/.zshrc
-		echo "Added special alias loading helper to ~/.zshrc"
-	fi
-	
-	# Save all aliases and sync special character aliases
+	#Save the aliases
 	sval
 	
-	echo "QuickSaveAlias (macOS/Zsh) installation complete."
+	# Ensure aliases will be loaded at startup
+	if ! grep -q "source ~/.zsh-aliases" ~/.zshrc; then
+		echo -e "\n# Load saved aliases" >> ~/.zshrc
+		echo "[ -f ~/.zsh-aliases ] && source ~/.zsh-aliases" >> ~/.zshrc
+		echo "Added automatic loading of aliases to ~/.zshrc"
+	fi
 }
 
 ## Check if the alias exists
@@ -315,18 +280,9 @@ adal() {
 
 	if [[ $(qsa_check_alias_exist $1) = "TRUE" ]]; then
 		 echo "Alias $alias_name already exists! Use 'chal' instead." 
-	else
-		# Check if this is a special character alias that needs quoting
-		if [[ $(isSpecialCharAlias "$alias_name") = "TRUE" ]]; then
-			# Need to use single quotes for the entire alias command for special character aliases
-			eval "alias '$alias_name=$alias_val'"
-			# For special character aliases, also add to helper script directly
-			syncSpecialAliases
-		else
-			# Regular alias
-			alias $alias_name="$alias_val"
-			sval
-		fi
+	else 	
+		alias $alias_name="$alias_val"
+		sval
 	fi
 }
 
@@ -342,12 +298,7 @@ rmal() {
 
 	if [[ $(qsa_check_alias_exist $1) = "TRUE" ]]; then
 		unalias $alias_name
-		# Check if this was a special character alias
-		if [[ $(isSpecialCharAlias "$alias_name") = "TRUE" ]]; then
-			syncSpecialAliases
-		else
-			sval
-		fi
+		sval 
 	else 
 		echo "Alias $alias_name does not exist!"
 	fi
@@ -364,17 +315,8 @@ chal() {
 	alias_name=$1
 	alias_val=$2
 	if [[ $(qsa_check_alias_exist $1) = "TRUE" ]]; then
-		# Check if this is a special character alias that needs quoting
-		if [[ $(isSpecialCharAlias "$alias_name") = "TRUE" ]]; then
-			# Need to use single quotes for the entire alias command for special character aliases
-			eval "alias '$alias_name=$alias_val'"
-			# For special character aliases, also update helper script directly
-			syncSpecialAliases
-		else
-			# Regular alias
-			alias $alias_name="$alias_val"
-			sval
-		fi 
+		alias $alias_name="$alias_val"
+		sval 
 	else
 		echo "Alias $alias_name does not exist!"
 	fi
@@ -400,16 +342,10 @@ cpal() {
 			alias_val=$(echo ${alias_declaration##*=})
 			#Strip surrounding single quotes
 			alias_val=$(stripSurroundingSingleQuotes "$alias_val")
-			
 			#Creating the new alias
-			if [[ $(isSpecialCharAlias "$new_alias_name") = "TRUE" ]]; then
-				# Use eval for special character aliases
-				eval "alias '$new_alias_name=$alias_val'"
-				syncSpecialAliases
-			else
-				alias $new_alias_name="$alias_val"
-				sval
-			fi
+			alias $new_alias_name="$alias_val"
+			#Save changes
+			sval
 		fi
 	else
 		echo "Alias $alias_name does not exist!"
@@ -427,40 +363,15 @@ mval() {
 		
 	alias_name=$1
 	new_alias_name=$2
-	
-	if [[ ! $(qsa_check_alias_exist $1) = "TRUE" ]]; then
-		echo "Alias $alias_name does not exist!"
-		return 1
-	fi
-	
-	if [[ $(qsa_check_alias_exist $2) = "TRUE" ]]; then
-		echo "Alias $new_alias_name already exists!"
-		return 1
-	fi
-	
-	# Get the old alias value
-	alias_declaration=$(alias | grep " $alias_name=")
-	alias_val=$(echo ${alias_declaration##*=})
-	# Strip surrounding single quotes
-	alias_val=$(stripSurroundingSingleQuotes "$alias_val")
-	
-	# Create the new alias
-	if [[ $(isSpecialCharAlias "$new_alias_name") = "TRUE" ]]; then
-		# Use eval for special character aliases
-		eval "alias '$new_alias_name=$alias_val'"
+	#Copy the old alias to a new alias name
+	cpal $1 $2
+	if [ ! $? -eq 1 ]; then
+		#Removing the old alias
+		unalias $alias_name
+		#Save changes after removing old alias
+		sval
 	else
-		alias $new_alias_name="$alias_val"
-	fi
-	
-	# Remove the old alias
-	unalias $alias_name
-	
-	# Save changes and sync special aliases
-	sval
-	
-	# Special handling if either was a special character alias
-	if [[ $(isSpecialCharAlias "$alias_name") = "TRUE" ]] || [[ $(isSpecialCharAlias "$new_alias_name") = "TRUE" ]]; then
-		syncSpecialAliases
+		return 1
 	fi
 }
 
@@ -529,27 +440,6 @@ stripSurroundingSingleQuotes() {
 	echo $1 | sed -E "s/^[\"'](.*)[\"\']$/\1/g"
 }
 
-# Helper function to check if an alias name has special characters that need quoting
-needsQuoting() {
-    if [ $# -lt 1 ]; then
-		echo -e "needsQuoting: Insufficient arguments!\n"
-		return 1
-	fi
-	
-	local name=$1
-	# Expanded pattern matching to catch more special characters that can cause issues in Zsh
-	if [[ "$name" == -* || "$name" == .* || "$name" == [0-9]* || 
-	      "$name" == *-* || "$name" == *+* || "$name" == *\** || 
-	      "$name" == *\!* || "$name" == *\&* || "$name" == *=* ||
-          "$name" == *\?* || "$name" == *\#* || "$name" == *\$* ||
-          "$name" == *\%* || "$name" == *\^* || "$name" == *\~* ||
-          "$name" == *\@* || "$name" == *\/* || "$name" == *\\* ]]; then
-		echo "TRUE"
-	else
-		echo "FALSE"
-	fi
-}
-
 splitByFirstOccrOfEqualAndGetVal() {
 	if [ $# -lt 1 ]; then
 		echo -e "splitByFirstOccrGetVal: Insufficient arguments!\n"
@@ -573,84 +463,6 @@ qsa_main() {
 	if [ $1 = '-install' ]; then
 		qsa_install
 	fi
-}
-
-# Function to check if an alias should be put in the special aliases helper
-isSpecialCharAlias() {
-    local alias_name=$1
-    if [[ $(needsQuoting "$alias_name") = "TRUE" ]]; then
-        echo "TRUE"
-    else
-        echo "FALSE"
-    fi
-}
-
-# Function to synchronize special character aliases to the helper script
-syncSpecialAliases() {
-    local helper_script=~/.zsh_special_aliases.sh
-    
-    # If helper script doesn't exist, create it with a basic structure
-    if [[ ! -f "$helper_script" ]]; then
-        cat > "$helper_script" << 'EOL'
-#!/bin/zsh
-# Helper script for QuickSaveAlias to manage special character aliases in Zsh
-
-# These are the special character aliases that can cause issues when loaded from a file
-# Do not edit this section manually - it is managed by QuickSaveAlias
-
-# Special character aliases begin
-# Special character aliases end
-
-# Load the rest of the aliases from the main file
-if [ -f ~/.zsh-aliases ]; then
-  source ~/.zsh-aliases
-fi
-EOL
-        chmod +x "$helper_script"
-    fi
-
-    # Get current list of aliases
-    local all_aliases=$(alias)
-    local special_aliases=""
-    
-    # Parse through each alias and identify special character ones
-    while IFS= read -r line; do
-        if [[ "$line" == alias* ]]; then
-            # Extract alias name (between 'alias ' and '=')
-            local alias_name=$(echo "$line" | sed -E 's/alias ([^=]+)=.*/\1/')
-            
-            # Check if this is a special character alias
-            if [[ $(isSpecialCharAlias "$alias_name") = "TRUE" ]]; then
-                # Extract the alias definition (everything after the first =)
-                local alias_def=$(echo "$line" | sed -E 's/alias [^=]+=(.+)/\1/')
-                special_aliases+="alias $alias_name=$alias_def\n"
-            fi
-        fi
-    done <<< "$all_aliases"
-    
-    # Update the helper script with the special aliases
-    local temp_file=$(mktemp)
-    local in_special_section=0
-    
-    # Read the helper script and replace the special aliases section
-    while IFS= read -r line; do
-        if [[ "$line" == "# Special character aliases begin" ]]; then
-            echo "$line" >> "$temp_file"
-            echo "$special_aliases" >> "$temp_file"
-            in_special_section=1
-        elif [[ "$line" == "# Special character aliases end" ]]; then
-            echo "$line" >> "$temp_file"
-            in_special_section=0
-        elif [[ $in_special_section -eq 0 ]]; then
-            echo "$line" >> "$temp_file"
-        fi
-    done < "$helper_script"
-    
-    # Replace the helper script with the updated content
-    mv "$temp_file" "$helper_script"
-    chmod +x "$helper_script"
-    
-    echo "Special character aliases synchronized to $helper_script"
 }
 
 ##Invoke Main##
