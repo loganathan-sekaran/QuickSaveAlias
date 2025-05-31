@@ -8,13 +8,49 @@ wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quick
 # Download any existing aliases. If $1 is not provided it will not download the existing alias. 
 # If 'basic' is provided, it will download /my_aliases_bkup/.bash-aliases
 # If 'somethingelse' is provided it will download /my_aliases_bkup/.bash-aliases-somethingelse
-if [[ "$1" == "basic" ]]; then
-	echo "Downloading existing alias backups: loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases"
-	wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases -O .bash-aliases
-elif [ ! -z "$1" -a "$1" != " " ]; then
-	echo "Downloading existing alias backups: loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases-$1"
-	wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases-$1 -O .bash-aliases
-fi 
+if [[ -n "$1" ]]; then
+    # Download the merge script if we need it
+    echo "Downloading bash aliases merger..."
+    wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/merge_bash_aliases.sh -O .merge_bash_aliases.sh
+    chmod +x .merge_bash_aliases.sh
+
+    # Create a backup of existing .bash-aliases if it exists
+    if [ -f ~/.bash-aliases ]; then
+        cp ~/.bash-aliases ~/.bash-aliases.backup
+        echo "Created backup of existing aliases at ~/.bash-aliases.backup"
+    fi
+
+    if [[ "$1" == "basic" ]]; then
+        echo "Downloading existing alias backups: loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases"
+        # Download to a temporary file
+        wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases -O .bash-aliases-temp
+        
+        # Merge with existing .bash-aliases if it exists
+        if [ -f ~/.bash-aliases ]; then
+            # Use our merger to preserve existing aliases
+            ~/.merge_bash_aliases.sh ~/.bash-aliases-temp ~/.bash-aliases
+        else
+            # No existing file, just copy directly
+            mv .bash-aliases-temp .bash-aliases
+        fi
+    elif [ ! -z "$1" -a "$1" != " " ]; then
+        echo "Downloading existing alias backups: loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases-$1"
+        # Download to a temporary file
+        wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases-$1 -O .bash-aliases-temp
+        
+        # Merge with existing .bash-aliases if it exists
+        if [ -f ~/.bash-aliases ]; then
+            # Use our merger to preserve existing aliases
+            ~/.merge_bash_aliases.sh ~/.bash-aliases-temp ~/.bash-aliases
+        else
+            # No existing file, just copy directly
+            mv .bash-aliases-temp .bash-aliases
+        fi
+    fi
+    
+    # Clean up temporary files
+    rm -f .bash-aliases-temp
+fi
 
 # The installation fo QuickSaveAlias into ~/.bashrc file
 cat <<EOT >> .bashrc

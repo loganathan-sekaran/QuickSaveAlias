@@ -17,7 +17,7 @@ This can be invoked as below:
 dex my-docker-container:latest
 ````
 
-Installatioin:
+Installation:
 -----------
 
 To install the script for the session, 
@@ -78,16 +78,16 @@ Utility functions:
 ------------------
 ````
   adal    <alias name> <alias value>              : To add an alias and persist the change.
-  rmal    <alias name> <alias value>              : To remove an alias and persist the change.
+  rmal    <alias name>                            : To remove an alias and persist the change.
   chal    <alias name> <alias value>              : To change an alias and persist the change.
   cpal    <old alias name> <new alias name>       : Copy an old alias to a new alias name and persist the change.
   mval    <old alias name> <new alias name>       : Rename an old alias with a new name and persist the change.
 
   adfn    <function name> <function value>                : To add an alias function and persist the change. This function can have arguments like $1, $2.
-  rmfn    <function name> <function value>                : To remove an alias function and persist the change. This function can have arguments like $1, $2.
+  rmfn    <function name>                                 : To remove an alias function and persist the change.
   chfn    <function name> <function value>                : To change an alias function and persist the change. This function can have arguments like $1, $2.
-  cpfn    <old function name> <new function name>         : Copy an old alias function to a new alias function name and persist the change. This function can have arguments like $1, $2.
-  mvfn    <old function name> <new function name>         : Rename an old alias function with a new name and persist the change. This function can have arguments like $1, $2.
+  cpfn    <old function name> <new function name>         : Copy an old alias function to a new alias function name and persist the change.
+  mvfn    <old function name> <new function name>         : Rename an old alias function with a new name and persist the change.
 
   alh     : To show this usage.
 ````
@@ -126,6 +126,26 @@ Examples:
   mvfn dockerpull dpll                            -- Renames the 'dockerpull' alias function to the new alias 'dpll' and persist the changes.
 ````
 
+Importing Aliases from Backup Files (Linux/Bash):
+---------------------------
+QuickSaveAlias provides a utility for importing bash aliases from backup files into your existing setup:
+
+````
+# Import aliases from a backup file, preserving existing aliases
+./import_bash_aliases.sh my_aliases_bkup/.bash-aliases
+
+# Import aliases from a backup file, overwriting any conflicts
+./import_bash_aliases.sh --force my_aliases_bkup/.bash-aliases-dev
+
+# Import aliases with a backup of your current aliases
+./import_bash_aliases.sh --backup my_aliases_bkup/.bash-aliases
+````
+
+Notes about importing aliases:
+* By default, existing aliases in your `.bash-aliases` file are preserved (not overwritten)
+* You can use `--force` to replace all aliases with the backup version
+* Backup files can be specified with relative or absolute paths
+
 Zsh Installation (macOS):
 ------------------------
 * Download the file [quicksavealias_mac.sh](https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quicksavealias_mac.sh) to your home folder as `.quicksavealias.sh`.
@@ -159,3 +179,46 @@ If you see any issues with aliases containing special characters:
 
 1. Run `fixal` to fix the format of your alias file
 2. Use the `syncSpecialAliases` function to synchronize your special character aliases
+
+Quick-Installation for macOS/Zsh:
+---------------------------
+* To quickly install QuickSaveAlias for macOS/Zsh:
+````
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh && source ~/.zshrc
+````
+
+* To quickly install QuickSaveAlias with basic aliases backup (my_aliases_backup/.bash-aliases):
+````
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh -s basic && source ~/.zshrc
+````
+
+* To quickly install QuickSaveAlias with some other aliases backup (my_aliases_backup/.bash-aliases-<some-other-backup>):
+````
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh -s <some-other-backup> && source ~/.zshrc
+````
+For Example:
+
+````
+curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh -s dev && source ~/.zshrc
+````
+
+Importing Aliases from Backup Files (macOS/Zsh):
+---------------------------
+QuickSaveAlias provides a utility for importing aliases from backup files into your existing setup:
+
+````
+# Import aliases from a backup file, preserving existing aliases
+./import_aliases.sh my_aliases_bkup/.bash-aliases
+
+# Import aliases from a backup file, overwriting any conflicts
+./import_aliases.sh --force my_aliases_bkup/.bash-aliases-dev
+
+# Import aliases with a backup of your current aliases
+./import_aliases.sh --backup my_aliases_bkup/.bash-aliases
+````
+
+Notes about importing aliases:
+* When importing from `.bash-aliases` files, the script automatically converts them to Zsh format
+* By default, existing aliases in your `.zsh-aliases` file are preserved (not overwritten)
+* Special character aliases are handled automatically
+* You can use `--force` to replace all aliases with the backup version
