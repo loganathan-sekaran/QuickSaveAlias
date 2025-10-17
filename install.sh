@@ -1,66 +1,90 @@
 #!/usr/bin/env bash
-# This script is to quicken the installation of QuickSaveAlias to do in one command.
-cd ~/
-echo "Installation of QuickSaveAlias Started.."
-echo "Downloading QuickSaveAlias.."
-wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quicksavealias.sh -O .quicksavealias.sh
+# QuickSaveAlias - Linux/Bash Installation Script
+# Usage: curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/main/install.sh | bash
 
-# Download any existing aliases. If $1 is not provided it will not download the existing alias. 
-# If 'basic' is provided, it will download /my_aliases_bkup/.bash-aliases
-# If 'somethingelse' is provided it will download /my_aliases_bkup/.bash-aliases-somethingelse
-if [[ -n "$1" ]]; then
-    # Download the merge script if we need it
-    echo "Downloading bash aliases merger..."
-    wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/merge_bash_aliases.sh -O .merge_bash_aliases.sh
-    chmod +x .merge_bash_aliases.sh
+set -e
 
-    # Create a backup of existing .bash-aliases if it exists
-    if [ -f ~/.bash-aliases ]; then
-        cp ~/.bash-aliases ~/.bash-aliases.backup
-        echo "Created backup of existing aliases at ~/.bash-aliases.backup"
-    fi
+echo "🚀 Installing QuickSaveAlias for Linux/Bash..."
+echo ""
 
-    if [[ "$1" == "basic" ]]; then
-        echo "Downloading existing alias backups: loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases"
-        # Download to a temporary file
-        wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases -O .bash-aliases-temp
-        
-        # Merge with existing .bash-aliases if it exists
-        if [ -f ~/.bash-aliases ]; then
-            # Use our merger to preserve existing aliases
-            ~/.merge_bash_aliases.sh ~/.bash-aliases-temp ~/.bash-aliases
-        else
-            # No existing file, just copy directly
-            mv .bash-aliases-temp .bash-aliases
-        fi
-    elif [ ! -z "$1" -a "$1" != " " ]; then
-        echo "Downloading existing alias backups: loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases-$1"
-        # Download to a temporary file
-        wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases-$1 -O .bash-aliases-temp
-        
-        # Merge with existing .bash-aliases if it exists
-        if [ -f ~/.bash-aliases ]; then
-            # Use our merger to preserve existing aliases
-            ~/.merge_bash_aliases.sh ~/.bash-aliases-temp ~/.bash-aliases
-        else
-            # No existing file, just copy directly
-            mv .bash-aliases-temp .bash-aliases
-        fi
-    fi
+# Detect if we're in the repo or need to download
+if [[ -f "./quicksavealias.sh" ]]; then
+    echo "📁 Using local files from current directory"
+    SCRIPT_DIR="$(pwd)"
+    USE_LOCAL=1
+else
+    echo "📥 Downloading from GitHub..."
+    USE_LOCAL=0
     
-    # Clean up temporary files
-    rm -f .bash-aliases-temp
+    # GitHub raw URL
+    GITHUB_RAW_URL="https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/main"
+    
+    # Create temp directory
+    TMP_DIR=$(mktemp -d)
+    cd "$TMP_DIR"
+    
+    # Download required file
+    echo "   Downloading quicksavealias.sh..."
+    curl -fsSL "${GITHUB_RAW_URL}/quicksavealias.sh" -o quicksavealias.sh || {
+        echo "❌ Failed to download quicksavealias.sh"
+        echo "   Please check the GitHub URL or clone the repository manually."
+        exit 1
+    }
+    
+    SCRIPT_DIR="$TMP_DIR"
 fi
 
-# The installation fo QuickSaveAlias into ~/.bashrc file
-cat <<EOT >> .bashrc
-# Install QuickSaveAlias for the session
-[ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install
-EOT
+echo ""
+echo "📦 Installing files..."
 
-cat << EOF
-Installation of QuickSaveAlias completed. 
-To remove QuickSaveAlias if not needed, remove the QuickSaveAlias install command from ~/.bashrc
-Please refer to the link for any details: https://github.com/loganathan001/QuickSaveAlias
-EOF
+# Backup existing file if it exists
+if [[ -f ~/.quicksavealias.sh ]]; then
+    cp ~/.quicksavealias.sh ~/.quicksavealias.sh.backup-$(date +%Y%m%d-%H%M%S)
+    echo "   ✓ Backed up existing ~/.quicksavealias.sh"
+fi
 
+# Install the script
+cp "${SCRIPT_DIR}/quicksavealias.sh" ~/.quicksavealias.sh
+chmod +x ~/.quicksavealias.sh
+
+echo "   ✓ Installed ~/.quicksavealias.sh"
+
+echo ""
+echo "⚙️  Configuring ~/.bashrc..."
+
+# Check if already configured
+if grep -q "quicksavealias.sh" ~/.bashrc 2>/dev/null; then
+    echo "   ✓ Already configured in ~/.bashrc"
+else
+    # Add to .bashrc
+    echo '' >> ~/.bashrc
+    echo '# QuickSaveAlias - Persistent alias management' >> ~/.bashrc
+    echo '[ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install' >> ~/.bashrc
+    echo "   ✓ Added QuickSaveAlias to ~/.bashrc"
+fi
+
+# Initialize the aliases file if it doesn't exist
+if [[ ! -f ~/.bash-aliases ]]; then
+    echo "# Bash aliases file - auto-generated by QuickSaveAlias" > ~/.bash-aliases
+    echo "   ✓ Created ~/.bash-aliases"
+fi
+
+# Clean up temp directory if we downloaded files
+if [[ $USE_LOCAL -eq 0 ]]; then
+    cd ~
+    rm -rf "$TMP_DIR"
+fi
+
+echo ""
+echo "✅ Installation complete!"
+echo ""
+echo "📝 Next steps:"
+echo "   1. Reload your shell: source ~/.bashrc"
+echo "   2. Test with: alh (shows help)"
+echo "   3. Create your first alias: adal test 'echo Hello!'"
+echo ""
+echo "📚 Documentation:"
+echo "   - README: https://github.com/loganathan001/QuickSaveAlias"
+echo "   - Run 'alh' for usage guide"
+echo ""
+echo "🎉 Enjoy QuickSaveAlias!"

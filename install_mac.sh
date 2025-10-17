@@ -1,88 +1,105 @@
 #!/usr/bin/env zsh
-# This script is to quicken the installation of QuickSaveAlias in macOS with Zsh
-cd ~/
-echo "Installation of QuickSaveAlias for macOS/Zsh Started.."
-echo "Downloading QuickSaveAlias for macOS/Zsh.."
-curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quicksavealias_mac.sh -o .quicksavealias.sh
-echo "Downloading helper script for special character aliases.."
-curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/zsh_special_aliases.sh -o .zsh_special_aliases.sh
-chmod +x .zsh_special_aliases.sh
+# QuickSaveAlias - macOS/Zsh Installation Script
+# Usage: curl -fsSL https://raw.githubusercontent.com/YOUR_USER/QuickSaveAlias/main/install_mac.sh | zsh
 
-# Download any existing aliases. If $1 is not provided it will not download the existing alias. 
-# If 'basic' is provided, it will download /my_aliases_bkup/.bash-aliases
-# If 'somethingelse' is provided it will download /my_aliases_bkup/.bash-aliases-somethingelse
-if [[ -n "$1" ]]; then
-    # Download the converter script if it doesn't exist locally
-    if [ ! -f ~/.convert_bash_aliases.sh ]; then
-        echo "Downloading bash to zsh alias converter..."
-        curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/convert_bash_aliases.sh -o ~/.convert_bash_aliases.sh
-        chmod +x ~/.convert_bash_aliases.sh
-    fi
+set -e
 
-    # Create a backup of existing .zsh-aliases if it exists
-    if [ -f ~/.zsh-aliases ]; then
-        cp ~/.zsh-aliases ~/.zsh-aliases.backup
-        echo "Created backup of existing aliases at ~/.zsh-aliases.backup"
-    fi
+echo "🚀 Installing QuickSaveAlias for macOS/Zsh..."
+echo ""
 
-    # Handle different types of backups
-    if [[ "$1" == "basic" ]]; then
-        echo "Downloading existing alias backups: loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases"
-        # Download to a temporary file
-        curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases -o ~/.bash-aliases-temp
-        
-        # Convert and merge with existing .zsh-aliases
-        ~/.convert_bash_aliases.sh ~/.bash-aliases-temp ~/.zsh-aliases
-        
-        # Clean up
-        rm ~/.bash-aliases-temp
-    elif [[ "$1" != " " ]]; then
-        echo "Downloading existing alias backups: loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases-$1"
-        # Download to a temporary file
-        curl -s https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases-$1 -o ~/.bash-aliases-temp
-        
-        # Convert and merge with existing .zsh-aliases
-        ~/.convert_bash_aliases.sh ~/.bash-aliases-temp ~/.zsh-aliases
-        
-        # Clean up
-        rm ~/.bash-aliases-temp
-    fi
-fi
-
-# The installation of QuickSaveAlias into ~/.zshrc file
-if grep -q "quicksavealias.sh -install" ~/.zshrc; then
-    echo "QuickSaveAlias already installed in ~/.zshrc"
+# Detect if we're in the repo or need to download
+if [[ -f "./quicksavealias_mac.sh" ]]; then
+    echo "📁 Using local files from current directory"
+    SCRIPT_DIR="$(pwd)"
+    USE_LOCAL=1
 else
-    echo "# Install QuickSaveAlias for the session" >> ~/.zshrc
-    echo "[ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install" >> ~/.zshrc
+    echo "📥 Downloading from GitHub..."
+    USE_LOCAL=0
+    
+    # You can replace this with your actual GitHub URL
+    GITHUB_RAW_URL="https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/main"
+    
+    # Create temp directory
+    TMP_DIR=$(mktemp -d)
+    cd "$TMP_DIR"
+    
+    # Download required files
+    echo "   Downloading quicksavealias_mac.sh..."
+    curl -fsSL "${GITHUB_RAW_URL}/quicksavealias_mac.sh" -o quicksavealias_mac.sh || {
+        echo "❌ Failed to download quicksavealias_mac.sh"
+        echo "   Please check the GitHub URL or clone the repository manually."
+        exit 1
+    }
+    
+    echo "   Downloading zsh_special_aliases.sh..."
+    curl -fsSL "${GITHUB_RAW_URL}/zsh_special_aliases.sh" -o zsh_special_aliases.sh || {
+        echo "❌ Failed to download zsh_special_aliases.sh"
+        exit 1
+    }
+    
+    SCRIPT_DIR="$TMP_DIR"
 fi
 
-# Remove direct .zsh-aliases loading if it exists
-if grep -q "source ~/.zsh-aliases" ~/.zshrc; then
-    sed -i '' '/source ~\/.zsh-aliases/d' ~/.zshrc
+echo ""
+echo "📦 Installing files..."
+
+# Backup existing files if they exist
+if [[ -f ~/.quicksavealias.sh ]]; then
+    cp ~/.quicksavealias.sh ~/.quicksavealias.sh.backup-$(date +%Y%m%d-%H%M%S)
+    echo "   ✓ Backed up existing ~/.quicksavealias.sh"
 fi
 
-# Add the special aliases loader if it's not already there
-if ! grep -q "source ~/.zsh_special_aliases.sh" ~/.zshrc; then
-    echo -e "\n# Load all aliases including special character aliases" >> ~/.zshrc
-    echo "[ -f ~/.zsh_special_aliases.sh ] && source ~/.zsh_special_aliases.sh" >> ~/.zshrc
-    echo "Added special alias loading helper to ~/.zshrc"
+if [[ -f ~/.zsh_special_aliases.sh ]]; then
+    cp ~/.zsh_special_aliases.sh ~/.zsh_special_aliases.sh.backup-$(date +%Y%m%d-%H%M%S)
+    echo "   ✓ Backed up existing ~/.zsh_special_aliases.sh"
 fi
 
-# Run initial synchronization of special character aliases if we have an existing file
-if [ -f ~/.zsh-aliases ]; then
-    echo "Running initial synchronization of special character aliases..."
-    source ~/.quicksavealias.sh -install
-    echo "Synchronization complete."
+# Install the scripts
+cp "${SCRIPT_DIR}/quicksavealias_mac.sh" ~/.quicksavealias.sh
+cp "${SCRIPT_DIR}/zsh_special_aliases.sh" ~/.zsh_special_aliases.sh
+chmod +x ~/.quicksavealias.sh ~/.zsh_special_aliases.sh
+
+echo "   ✓ Installed ~/.quicksavealias.sh"
+echo "   ✓ Installed ~/.zsh_special_aliases.sh"
+
+echo ""
+echo "⚙️  Configuring ~/.zshrc..."
+
+# Check if already configured
+if grep -q "quicksavealias.sh" ~/.zshrc 2>/dev/null && grep -q "zsh_special_aliases.sh" ~/.zshrc 2>/dev/null; then
+    echo "   ✓ Already configured in ~/.zshrc"
+else
+    # Add to .zshrc
+    echo '' >> ~/.zshrc
+    echo '# QuickSaveAlias - Persistent alias management' >> ~/.zshrc
+    echo '[ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install' >> ~/.zshrc
+    echo '[ -f ~/.zsh_special_aliases.sh ] && source ~/.zsh_special_aliases.sh' >> ~/.zshrc
+    echo "   ✓ Added QuickSaveAlias to ~/.zshrc"
 fi
 
-cat << EOF
-Installation of QuickSaveAlias completed for macOS/Zsh.
+# Initialize the aliases file if it doesn't exist
+if [[ ! -f ~/.zsh-aliases ]]; then
+    echo "# Zsh aliases file - auto-generated by QuickSaveAlias" > ~/.zsh-aliases
+    echo "# Special character aliases are managed in ~/.zsh_special_aliases.sh" >> ~/.zsh-aliases
+    echo "   ✓ Created ~/.zsh-aliases"
+fi
 
-Special character aliases (like '-', '...', etc.) are now handled automatically
-through a special helper script. To fix any alias issues, run:
-   source ~/.quicksavealias.sh -install && fixal
+# Clean up temp directory if we downloaded files
+if [[ $USE_LOCAL -eq 0 ]]; then
+    cd ~
+    rm -rf "$TMP_DIR"
+fi
 
-To remove QuickSaveAlias if not needed, remove the QuickSaveAlias install command from ~/.zshrc
-Please refer to the link for any details: https://github.com/loganathan001/QuickSaveAlias
-EOF
+echo ""
+echo "✅ Installation complete!"
+echo ""
+echo "📝 Next steps:"
+echo "   1. Close and reopen your terminal (or run: source ~/.zshrc)"
+echo "   2. Test with: alh (shows help)"
+echo "   3. Create your first alias: adal test 'echo Hello!'"
+echo ""
+echo "📚 Documentation:"
+echo "   - README: https://github.com/loganathan001/QuickSaveAlias"
+echo "   - Run 'alh' for usage guide"
+echo ""
+echo "🎉 Enjoy QuickSaveAlias!"

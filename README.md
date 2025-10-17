@@ -29,36 +29,75 @@ dex my-container  # Executes: docker exec -it my-container /bin/bash
 
 ### Linux / Bash
 
-1. Clone or download `quicksavealias.sh`
-2. Add to your `~/.bashrc`:
+#### Quick Install
+
+**One-line install:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/main/install.sh | bash
+```
+
+#### Manual Install
+
+1. **Download or clone:**
    ```bash
-   [ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install
+   wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/main/quicksavealias.sh -O ~/.quicksavealias.sh
+   chmod +x ~/.quicksavealias.sh
    ```
-3. Reload your shell:
+
+2. **Add to your `~/.bashrc`:**
+   ```bash
+   echo '[ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install' >> ~/.bashrc
+   ```
+
+3. **Reload your shell:**
    ```bash
    source ~/.bashrc
    ```
 
 ### macOS / Zsh
 
-1. Clone or download the repository:
+#### Quick Install (Recommended)
+
+**One-line install** (no git clone required):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/main/install_mac.sh | zsh
+```
+
+Then close and reopen your terminal.
+
+#### Manual Install
+
+If you prefer to install manually or from a cloned repository:
+
+1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-repo/QuickSaveAlias.git ~/git/QuickSaveAlias
+   cd ~/git
+   git clone https://github.com/loganathan001/QuickSaveAlias.git
+   cd QuickSaveAlias
    ```
 
-2. Run the install script:
+2. **Run the install script:**
    ```bash
-   cd ~/git/QuickSaveAlias
-   ./quicksavealias_mac.sh -install
+   ./install_mac.sh
    ```
    
-3. Or manually add to your `~/.zshrc`:
-   ```zsh
-   [ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install
-   [ -f ~/.zsh_special_aliases.sh ] && source ~/.zsh_special_aliases.sh
+   Or install manually:
+   ```bash
+   cp quicksavealias_mac.sh ~/.quicksavealias.sh
+   cp zsh_special_aliases.sh ~/.zsh_special_aliases.sh
+   chmod +x ~/.quicksavealias.sh ~/.zsh_special_aliases.sh
    ```
 
-4. Reload your shell:
+3. **Add to your `~/.zshrc`:**
+   ```zsh
+   echo '' >> ~/.zshrc
+   echo '[ -e ~/.quicksavealias.sh ] && source ~/.quicksavealias.sh -install' >> ~/.zshrc
+   echo '[ -f ~/.zsh_special_aliases.sh ] && source ~/.zsh_special_aliases.sh' >> ~/.zshrc
+   ```
+
+4. **Reload your shell:**
    ```zsh
    source ~/.zshrc
    ```
@@ -291,8 +330,10 @@ source ~/.zshrc
 
 ## Guides
 
+- **[INSTALL_CURL.md](INSTALL_CURL.md)** - One-line curl installation guide ⭐
 - **[IMPORT_GUIDE.md](IMPORT_GUIDE.md)** - How to import aliases from backup files
 - **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** - Complete migration guide from Linux/Bash to macOS/Zsh
+- **[INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md)** - Complete installation guide
 - **[FIX_NOW.md](FIX_NOW.md)** - Quick fixes for common issues
 
 ## Why QuickSaveAlias?
