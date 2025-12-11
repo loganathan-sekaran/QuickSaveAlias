@@ -34,14 +34,14 @@ dex my-container  # Executes: docker exec -it my-container /bin/bash
 **One-line install:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash
 ```
 
 #### Manual Install
 
 1. **Download or clone:**
    ```bash
-   wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/main/quicksavealias.sh -O ~/.quicksavealias.sh
+   wget https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/quicksavealias.sh -O ~/.quicksavealias.sh
    chmod +x ~/.quicksavealias.sh
    ```
 
@@ -62,7 +62,7 @@ curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/main/i
 **One-line install** (no git clone required):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/main/install_mac.sh | zsh
+curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install_mac.sh | zsh
 ```
 
 Then close and reopen your terminal.
