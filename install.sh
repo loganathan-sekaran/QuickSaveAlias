@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # QuickSaveAlias - Linux/Bash Installation Script
-# Usage: curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/main/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/install.sh | bash
 
 set -e
 
@@ -17,7 +17,7 @@ else
     USE_LOCAL=0
     
     # GitHub raw URL
-    GITHUB_RAW_URL="https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/main"
+    GITHUB_RAW_URL="https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master"
     
     # Create temp directory
     TMP_DIR=$(mktemp -d)
