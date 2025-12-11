@@ -2,8 +2,13 @@
 # Import aliases from backup file to .bash-aliases
 # Giving preference to existing aliases
 
-# Import script location
-SCRIPT_DIR=$(dirname "$0")
+# Import script location - handle both direct execution and curl pipe execution
+if [[ -f "$0" && "$0" != "bash" && "$0" != "-bash" ]]; then
+    SCRIPT_DIR=$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")
+else
+    # When run via curl pipe, use temp directory
+    SCRIPT_DIR=""
+fi
 
 show_usage() {
     echo "Usage: $0 [options] <backup_file>"
@@ -79,9 +84,9 @@ else
         # If not an absolute path, try relative to current dir or script dir
         if [[ -f "$BACKUP_FILE" ]]; then
             BACKUP_FILE="$(pwd)/$BACKUP_FILE"
-        elif [[ -f "$SCRIPT_DIR/$BACKUP_FILE" ]]; then
+        elif [[ -n "$SCRIPT_DIR" && -f "$SCRIPT_DIR/$BACKUP_FILE" ]]; then
             BACKUP_FILE="$SCRIPT_DIR/$BACKUP_FILE"
-        elif [[ -f "$SCRIPT_DIR/my_aliases_bkup/$BACKUP_FILE" ]]; then
+        elif [[ -n "$SCRIPT_DIR" && -f "$SCRIPT_DIR/my_aliases_bkup/$BACKUP_FILE" ]]; then
             BACKUP_FILE="$SCRIPT_DIR/my_aliases_bkup/$BACKUP_FILE"
         else
             echo "Error: Backup file not found: $BACKUP_FILE"
@@ -106,24 +111,7 @@ if [[ $CREATE_BACKUP -eq 1 && -f "$BASH_ALIASES_FILE" ]]; then
     echo "Created backup at: ${BASH_ALIASES_FILE}.backup_${BACKUP_DATE}"
 fi
 
-# If force mode, just copy file directly
-if [[ $FORCE -eq 1 ]]; then
-    cp "$BACKUP_FILE" "$BASH_ALIASES_FILE"
-    echo "Replaced $BASH_ALIASES_FILE with $BACKUP_FILE"
-else
-    # Regular merge mode - use the merge script if available
-    if [[ -f "$SCRIPT_DIR/merge_bash_aliases.sh" ]]; then
-        "$SCRIPT_DIR/merge_bash_aliases.sh" "$BACKUP_FILE" "$BASH_ALIASES_FILE"
-    else
-        echo "Error: Merger script not found at $SCRIPT_DIR/merge_bash_aliases.sh"
-        echo "Creating it now..."
-        
-        # Create the script if it doesn't exist
-        cat > "$SCRIPT_DIR/merge_bash_aliases.sh" << 'EOF'
-#!/usr/bin/env bash
-# This script helps convert and merge Bash aliases into an existing aliases file,
-# giving preference to existing aliases in case of conflicts
-
+# Merge function - inlined to avoid file creation issues
 convert_and_merge_aliases() {
     local source_aliases_file=$1
     local target_aliases_file=$2
@@ -190,26 +178,27 @@ convert_and_merge_aliases() {
     echo "Note: Existing aliases in '$target_aliases_file' were given preference."
 }
 
-# If the script is executed directly
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    if [ $# -lt 2 ]; then
-        echo "Usage: $0 <source_aliases_file> <target_aliases_file>"
-        exit 1
-    fi
-    convert_and_merge_aliases "$1" "$2"
-fi
-EOF
-        chmod +x "$SCRIPT_DIR/merge_bash_aliases.sh"
-        
-        # Now use the newly created script
-        "$SCRIPT_DIR/merge_bash_aliases.sh" "$BACKUP_FILE" "$BASH_ALIASES_FILE"
-    fi
+# If force mode, just copy file directly
+if [[ $FORCE -eq 1 ]]; then
+    cp "$BACKUP_FILE" "$BASH_ALIASES_FILE"
+    echo "Replaced $BASH_ALIASES_FILE with $BACKUP_FILE"
+else
+    # Regular merge mode - use inline function
+    convert_and_merge_aliases "$BACKUP_FILE" "$BASH_ALIASES_FILE"
 fi
 
 # Load the aliases if quicksavealias is installed
+# Note: We don't need to reload here since the aliases are already written to the file
+# The user should source ~/.bashrc or restart their shell to use the new aliases
 if [[ -f ~/.quicksavealias.sh ]]; then
-    source ~/.quicksavealias.sh -install
-    echo "Reloaded aliases with QuickSaveAlias"
+    # Try to source it, but don't fail if there are errors
+    # The -install flag might try to use functions that aren't loaded yet
+    if source ~/.quicksavealias.sh -install 2>/dev/null; then
+        echo "Reloaded aliases with QuickSaveAlias"
+    else
+        # Silently continue - aliases are already in the file
+        :
+    fi
 fi
 
 echo "Import complete. You may need to restart your shell or run 'source ~/.bashrc' to use the new aliases."

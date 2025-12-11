@@ -8,6 +8,9 @@
 ## Global Declarations
 #
 
+# Enable alias expansion in functions (needed for sval and other aliases to work)
+shopt -s expand_aliases
+
 #constants
 QSA_SCRIPT_VERSION='1.1.0'
 
@@ -154,12 +157,15 @@ qsa_install() {
 	
 	alias lsfn='aleval lsal | grep $ALIAS_FUNC_PREFIX'
 	alias fngrep='alias -p | grep $ALIAS_FUNC_PREFIX | grep'
+	
+	# Redefine sval alias now that BASH_ALIAS_FILE_PATH is set
+	alias sval='alias -p > $BASH_ALIAS_FILE_PATH'
 
 	#Source the existing aliases if available
 	[ -e $BASH_ALIAS_FILE_PATH ] && source $BASH_ALIAS_FILE_PATH
 	
-	#Save the aliases
-	sval
+	#Save the aliases (execute directly to avoid alias expansion issues in function context)
+	alias -p > "$BASH_ALIAS_FILE_PATH"
 
 }
 
