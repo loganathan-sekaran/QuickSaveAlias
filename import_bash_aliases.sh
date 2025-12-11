@@ -61,25 +61,39 @@ if [[ -z "$BACKUP_FILE" ]]; then
     exit 1
 fi
 
-# Resolve backup file path 
-if [[ "$BACKUP_FILE" != /* ]]; then
-    # If not an absolute path, try relative to current dir or script dir
-    if [[ -f "$BACKUP_FILE" ]]; then
-        BACKUP_FILE="$(pwd)/$BACKUP_FILE"
-    elif [[ -f "$SCRIPT_DIR/$BACKUP_FILE" ]]; then
-        BACKUP_FILE="$SCRIPT_DIR/$BACKUP_FILE"
-    elif [[ -f "$SCRIPT_DIR/my_aliases_bkup/$BACKUP_FILE" ]]; then
-        BACKUP_FILE="$SCRIPT_DIR/my_aliases_bkup/$BACKUP_FILE"
+# Check if the source is a URL
+TEMP_FILE=""
+if [[ "$BACKUP_FILE" == http://* || "$BACKUP_FILE" == https://* ]]; then
+    echo "Downloading alias file from URL..."
+    TEMP_FILE=$(mktemp)
+    if curl -fsSL "$BACKUP_FILE" -o "$TEMP_FILE" 2>/dev/null; then
+        BACKUP_FILE="$TEMP_FILE"
+        echo "   ✓ Downloaded successfully"
     else
+        echo "Error: Failed to download from URL: $BACKUP_FILE"
+        exit 1
+    fi
+else
+    # Resolve backup file path 
+    if [[ "$BACKUP_FILE" != /* ]]; then
+        # If not an absolute path, try relative to current dir or script dir
+        if [[ -f "$BACKUP_FILE" ]]; then
+            BACKUP_FILE="$(pwd)/$BACKUP_FILE"
+        elif [[ -f "$SCRIPT_DIR/$BACKUP_FILE" ]]; then
+            BACKUP_FILE="$SCRIPT_DIR/$BACKUP_FILE"
+        elif [[ -f "$SCRIPT_DIR/my_aliases_bkup/$BACKUP_FILE" ]]; then
+            BACKUP_FILE="$SCRIPT_DIR/my_aliases_bkup/$BACKUP_FILE"
+        else
+            echo "Error: Backup file not found: $BACKUP_FILE"
+            exit 1
+        fi
+    fi
+    
+    # Check if backup file exists
+    if [[ ! -f "$BACKUP_FILE" ]]; then
         echo "Error: Backup file not found: $BACKUP_FILE"
         exit 1
     fi
-fi
-
-# Check if backup file exists
-if [[ ! -f "$BACKUP_FILE" ]]; then
-    echo "Error: Backup file not found: $BACKUP_FILE"
-    exit 1
 fi
 
 # Target file
@@ -199,3 +213,8 @@ if [[ -f ~/.quicksavealias.sh ]]; then
 fi
 
 echo "Import complete. You may need to restart your shell or run 'source ~/.bashrc' to use the new aliases."
+
+# Clean up temp file if we downloaded from URL
+if [[ -n "$TEMP_FILE" && -f "$TEMP_FILE" ]]; then
+    rm -f "$TEMP_FILE"
+fi

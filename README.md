@@ -215,7 +215,27 @@ sval
 
 ## Import Existing Aliases
 
-If you're migrating from Bash or have a backup of aliases:
+### One-Line Import (No Git Clone Required)
+
+**Import from a backup file in the repository:**
+
+```bash
+# macOS / Zsh
+curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/import_aliases.sh | zsh -s -- https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases-dev
+
+# Linux / Bash (use import_bash_aliases.sh)
+curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/import_bash_aliases.sh | bash -s -- https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases
+```
+
+**Available backup files:**
+- `.bash-aliases` - Basic aliases
+- `.bash-aliases-dev` - Development aliases
+- `.bash-aliases-devops` - DevOps aliases
+- `.bash-aliases-old` - Old backup
+
+**Import from a local file:**
+
+If you have the repository checked out locally:
 
 ```bash
 cd ~/git/QuickSaveAlias
@@ -223,6 +243,12 @@ cd ~/git/QuickSaveAlias
 
 # Or import from any backup file
 ./import_aliases.sh my_aliases_bkup/.bash-aliases-dev
+```
+
+**Import from any URL:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/import_aliases.sh | zsh -s -- https://example.com/path/to/your-aliases.txt
 ```
 
 See [IMPORT_GUIDE.md](IMPORT_GUIDE.md) for detailed import instructions.
@@ -294,6 +320,13 @@ source ~/.zshrc
 
 ### Problem: Need to import aliases from backup
 
+**One-line import (no git clone required):**
+```zsh
+curl -fsSL https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/import_aliases.sh | zsh -s -- https://raw.githubusercontent.com/loganathan001/QuickSaveAlias/master/my_aliases_bkup/.bash-aliases-dev
+source ~/.zshrc
+```
+
+**Or if you have the repository locally:**
 ```zsh
 cd ~/git/QuickSaveAlias
 ./import_aliases.sh path/to/your/backup-aliases

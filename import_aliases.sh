@@ -1,25 +1,41 @@
 #!/usr/bin/env zsh
 # Import aliases from a Bash or Zsh alias backup file
-# Usage: ./import_aliases.sh <alias-backup-file>
+# Usage: ./import_aliases.sh <alias-backup-file-or-url>
 
 if [ $# -lt 1 ]; then
     echo "❌ Error: No alias file provided"
     echo ""
-    echo "Usage: ./import_aliases.sh <alias-backup-file>"
+    echo "Usage: ./import_aliases.sh <alias-backup-file-or-url>"
     echo ""
     echo "Examples:"
     echo "  ./import_aliases.sh my_aliases_bkup/.bash-aliases-dev"
     echo "  ./import_aliases.sh ~/.bash-aliases"
-    echo "  ./import_aliases.sh ~/backups/my-old-aliases.txt"
+    echo "  ./import_aliases.sh https://raw.githubusercontent.com/user/repo/main/my_aliases_bkup/.bash-aliases"
     echo ""
     exit 1
 fi
 
-ALIAS_FILE="$1"
+ALIAS_SOURCE="$1"
+ALIAS_FILE=""
+TEMP_FILE=""
 
-if [ ! -f "$ALIAS_FILE" ]; then
-    echo "❌ Error: File not found: $ALIAS_FILE"
-    exit 1
+# Check if the source is a URL
+if [[ "$ALIAS_SOURCE" == http://* || "$ALIAS_SOURCE" == https://* ]]; then
+    echo "📥 Downloading alias file from URL..."
+    TEMP_FILE=$(mktemp)
+    if curl -fsSL "$ALIAS_SOURCE" -o "$TEMP_FILE" 2>/dev/null; then
+        ALIAS_FILE="$TEMP_FILE"
+        echo "   ✓ Downloaded successfully"
+    else
+        echo "❌ Error: Failed to download from URL: $ALIAS_SOURCE"
+        exit 1
+    fi
+else
+    ALIAS_FILE="$ALIAS_SOURCE"
+    if [ ! -f "$ALIAS_FILE" ]; then
+        echo "❌ Error: File not found: $ALIAS_FILE"
+        exit 1
+    fi
 fi
 
 echo "🔄 QuickSaveAlias Import Tool"
@@ -193,3 +209,8 @@ echo "  1. Close and reopen your terminal (or run: source ~/.zshrc)"
 echo "  2. Test your aliases: lsal | grep -E '(cdgit|gst|kc1)'"
 echo "  3. List all aliases: lsal | wc -l"
 echo ""
+
+# Clean up temp file if we downloaded from URL
+if [[ -n "$TEMP_FILE" && -f "$TEMP_FILE" ]]; then
+    rm -f "$TEMP_FILE"
+fi
